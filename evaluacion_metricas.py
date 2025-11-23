@@ -31,7 +31,7 @@ def obtener_clase(ruta_nombre):
         return nombre_archivo.split('_')[0]
     return pathlib.Path(nombre_archivo).stem
 
-def calcular_matriz_confusion(predicciones, clases_reales_unicas):
+def calcular_matriz_confusion(predicciones, clases_reales):
     y_real = []
     y_pred = []
     
@@ -144,15 +144,11 @@ def evaluacion():
         
         print(f"\nMATRIZ DE CONFUSIÓN: {nombre_extractor}")
         matriz = calcular_matriz_confusion(datos_para_matriz, clases_unicas)
-        print(matriz.applymap(lambda x: f"{x:.0%}").to_string())
-        print("-" * 60 + "\n")
+        print(matriz.map(lambda x: f"{x:.0%}").to_string())
 
-    print("\n" + "="*80)
     print(f" TABLA COMPARATIVA FINAL (Precision@{K_VECINOS})")
-    print("="*80)
     df_resumen = pd.DataFrame(resumen_general)
     print(df_resumen.to_string(index=False))
-    print("="*80)
 
 if __name__ == "__main__":
     evaluacion()
