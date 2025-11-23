@@ -1,9 +1,3 @@
-######################################################################
-# CBIR APP - Streamlit + FAISS
-# - Si no existen los índices ni el CSV, los crea al arrancar.
-# - Permite seleccionar extractor, subir imagen y obtener resultados.
-######################################################################
-
 import os
 import pathlib
 import time
@@ -15,9 +9,6 @@ import streamlit as st
 from streamlit_cropper import st_cropper
 import extractores as ext
 
-# --------------------------------------------------------
-# CONFIGURACIÓN Y RUTAS
-# --------------------------------------------------------
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 st.set_page_config(layout="wide")
 
@@ -34,14 +25,7 @@ INDEX_MAP = {
     "MobileNetV2":     "caracteristicas_mobilenetv2.index",
 }
 
-# --------------------------------------------------------
-# COMPROBAR Y CREAR LA BASE SI NO EXISTE
-# --------------------------------------------------------
 def comprobar_y_crear_base():
-    """
-    Si faltan db.csv o algún .index, ejecuta la creación completa
-    llamando a extractores.crear_indices_y_csv().
-    """
     DB_PATH.mkdir(exist_ok=True, parents=True)
     indices_faltan = False
 
@@ -57,11 +41,8 @@ def comprobar_y_crear_base():
         ext.crear_indices_csv()
         st.success("Base de datos creada correctamente.")
     else:
-        print("[OK] Base de datos existente, no se reconstruye.")
+        print("Base de datos existente.")
 
-# --------------------------------------------------------
-# CARGA DE ÍNDICES Y CSV
-# --------------------------------------------------------
 @st.cache_data
 def cargar_imagenes():
     df = pd.read_csv(DB_FILE)
@@ -74,13 +55,7 @@ def cargar_indices():
         indices[k] = faiss.read_index(str(DB_PATH / fname))
     return indices
 
-# --------------------------------------------------------
-# PROCESO DE CONSULTA
-# --------------------------------------------------------
 def procesar_imagen_query(pil_img, extractor):
-    """
-    Devuelve el vector de características (1,D) para la imagen query.
-    """
     if extractor == "Histograma":
         return ext.extraer_histograma(pil_img)
     elif extractor == "Haralick":
@@ -96,9 +71,6 @@ def procesar_imagen_query(pil_img, extractor):
         raise ValueError("Extractor no válido.")
 
 def recuperar_similares(pil_img, extractor, n_imgs=11):
-    """
-    Realiza la búsqueda en FAISS y devuelve los índices de las imágenes más parecidas.
-    """
     indices_faiss = cargar_indices()
     index = indices_faiss[extractor]
 
@@ -107,9 +79,6 @@ def recuperar_similares(pil_img, extractor, n_imgs=11):
     _, I = index.search(vec, k=n_imgs)
     return I[0]
 
-# --------------------------------------------------------
-# INTERFAZ STREAMLIT
-# --------------------------------------------------------
 def main():
     st.markdown(
     """
@@ -176,8 +145,5 @@ def main():
                         if ruta.exists():
                             st.image(Image.open(ruta), use_column_width=True)
 
-# --------------------------------------------------------
-# EJECUCIÓN PRINCIPAL
-# --------------------------------------------------------
 if __name__ == "__main__":
     main()
