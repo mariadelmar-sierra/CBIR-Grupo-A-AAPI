@@ -29,7 +29,7 @@ Debes:
 
 Sin estas imágenes, la aplicación no funcionará, ya que todos los extractores trabajan sobre ellas.
 
-## 3️. Crear un entorno virtual (recomendado)
+## 3. Crear un entorno virtual (recomendado)
 
 ### Windows
 
